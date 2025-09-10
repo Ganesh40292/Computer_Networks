@@ -2,49 +2,78 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Scanner;
 
-public class p9 
+public class RSA 
 {
     private BigInteger n, d, e;
-    private int bitlen = 1024;
+    private int bitlen = 1024;  // strong key size
 
-    public p9() 
-  {
-        SecureRandom r = new SecureRandom();
-        BigInteger p = new BigInteger(bitlen / 2, 100, r);
-        BigInteger q = new BigInteger(bitlen / 2, 100, r);
-        n = p.multiply(q);
-        BigInteger phi = (p.subtract(BigInteger.ONE)).multiply(q.subtract(BigInteger.ONE));
-        e = new BigInteger("65537");
+    /**
+     * Constructor to generate public and private keys
+     */
+    public RSA() 
+    {
+        SecureRandom random = new SecureRandom();
+
+        // Generate two large random primes p and q
+        BigInteger p = BigInteger.probablePrime(bitlen / 2, random);
+        BigInteger q = BigInteger.probablePrime(bitlen / 2, random);
+
+        n = p.multiply(q);  // modulus
+        BigInteger phi = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));  // Euler's totient
+
+        e = BigInteger.valueOf(65537);  // common choice for public exponent
+
+        // Calculate private exponent d, modular inverse of e mod phi
         d = e.modInverse(phi);
     }
 
+    /**
+     * Encrypt message using public key (e, n)
+     * @param message plaintext as BigInteger
+     * @return ciphertext as BigInteger
+     */
     public BigInteger encrypt(BigInteger message) 
-  {
+    {
+        if (message.compareTo(n) >= 0) 
+        {
+            throw new IllegalArgumentException("Message too long for the current key size.");
+        }
         return message.modPow(e, n);
     }
 
-    public BigInteger decrypt(BigInteger encrypted) 
-  {
-        return encrypted.modPow(d, n); 
+    /**
+     * Decrypt ciphertext using private key (d, n)
+     * @param ciphertext encrypted message as BigInteger
+     * @return decrypted plaintext as BigInteger
+     */
+    public BigInteger decrypt(BigInteger ciphertext) 
+    {
+        return ciphertext.modPow(d, n);
     }
 
-    public static void main(String[] args) 
-  {
-        p9 rsa = new p9();
+    /**
+     * Main method: reads input, encrypts and decrypts the message
+     */
+    public static void main(String[] args)
+    {
+        RSA rsa = new RSA();
         Scanner sc = new Scanner(System.in);
 
-        System.out.println("Enter the message:");
-        String text = sc.nextLine();
+        System.out.println("Enter a message to encrypt:");
+        String message = sc.nextLine();
 
-        
-        BigInteger message = new BigInteger(1, text.getBytes());
+        // Convert the input string to a positive BigInteger (to avoid sign issues)
+        BigInteger plaintext = new BigInteger(1, message.getBytes());
 
-        BigInteger encrypted = rsa.encrypt(message);
-        BigInteger decrypted = rsa.decrypt(encrypted);
+        // Encrypt the message
+        BigInteger ciphertext = rsa.encrypt(plaintext);
 
-        System.out.println("\nOriginal Message: " + text);
-        System.out.println("Encrypted Message: " + encrypted);
-        System.out.println("Decrypted Message: " + new String(decrypted.toByteArray()));
+        // Decrypt the message
+        BigInteger decrypted = rsa.decrypt(ciphertext);
+
+        System.out.println("Original message: " + message);
+        System.out.println("Encrypted message (numeric): " + ciphertext);
+        System.out.println("Decrypted message: " + new String(decrypted.toByteArray()));
 
         sc.close();
     }
