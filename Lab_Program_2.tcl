@@ -10,6 +10,8 @@ global ns namfile tracefile
 $ns flush-trace
 close $namfile
 close $tracefile
+exec nam p2.nam &
+exec awk -f p2.awk p2.tr &
 
 exit 0
 }
