@@ -1,46 +1,48 @@
-
 package server;
+
 import java.net.*;
 import java.io.*;
-public class Server 
+
+public class Server
 {
-    public static void main(String args[])throws Exception
+    public static void main(String args[]) throws Exception
     {
-        ServerSocket ServSocket=new ServerSocket(4000);
-        System.out.println("**** Server Slide ***");
+        ServerSocket ServSocket = new ServerSocket(4000);
+
+        System.out.println("**** Server Side ****");
         System.out.println("Server ready for connection");
-        
-        Socket connSock=ServSocket.accept();
-        System.out.println("Connection is Successful and ready for file transfer");
-        
-        InputStream istream=connSock.getInputStream();
-        BufferedReader fileRead=new BufferedReader(new InputStreamReader(istream));
-        String fname =fileRead.readLine();
-        File fileName=new File(fname);
-        
-        OutputStream ostream =connSock.getOutputStream();
-        PrintWriter pwrite=new PrintWriter(ostream,true);
-        
-        if(fileName.exists())
+
+        Socket connSock = ServSocket.accept();
+
+        System.out.println("Client connected");
+
+        BufferedReader fileRead = new BufferedReader(new InputStreamReader(connSock.getInputStream()));
+        String fname = fileRead.readLine();
+
+        PrintWriter pwrite = new PrintWriter(connSock.getOutputStream(), true);
+
+        File fileName = new File(fname);
+
+        if (fileName.exists())
         {
-            BufferedReader ContentRead =new BufferedReader(new FileReader(fname));
-            System.out.println("writing file Contents to the socket");
+            BufferedReader ContentRead = new BufferedReader(new FileReader(fileName));
             String str;
-            while((str=ContentRead.readLine())!=null)
+
+            while ((str = ContentRead.readLine()) != null)
             {
-                    pwrite.println(str);
+                pwrite.println(str);
             }
+
             ContentRead.close();
         }
-        else 
+        else
         {
-            System.out.println("Requested file does not exists");
-            String msg="Requested file does not exists at server side";
-            pwrite.println(msg);
+            pwrite.println("Requested file does not exist on server");
         }
+
+        pwrite.close();
+        fileRead.close();
         connSock.close();
         ServSocket.close();
-        fileRead.close();
-        pwrite.close();
     }
 }
