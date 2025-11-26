@@ -1,13 +1,13 @@
 package cn;
 import java.util.*;
 
-public class P7 
+public class P7
 {
     static Scanner in = new Scanner(System.in);
 
-    public static void main(String[] args) 
+    public static void main(String[] args)
     {
-        int V, E = 1, checkNegative = 0;
+        int V, E = 0, checkNegative;
         int w[][] = new int[20][20];
         int edge[][] = new int[50][2];
 
@@ -15,54 +15,56 @@ public class P7
         V = in.nextInt();
 
         System.out.println("Enter the weight matrix");
-        for (int i = 1; i <= V; i++) 
+        for (int i = 0; i < V; i++)
         {
-            for (int j = 1; j <= V; j++) 
+            for (int j = 0; j < V; j++)
             {
                 w[i][j] = in.nextInt();
-                if (w[i][j] != 0) 
+                if (w[i][j] != 0)
                 {
                     edge[E][0] = i;
-                    edge[E++][1] = j;
+                    edge[E][1] = j;
+                    E++;
                 }
             }
         }
 
-        checkNegative = bellmanFord(w, V, E - 1, edge);
+        checkNegative = bellmanFord(w, V, E, edge);
 
-        if (checkNegative == 1) 
+        if (checkNegative == 1)
         {
             System.out.println("\nNo negative weight cycle exists\n");
         }
-        else 
+        else
         {
             System.out.println("\nNegative weight cycle exists\n");
         }
     }
 
-    public static int bellmanFord(int w[][], int V, int E, int edge[][]) 
+    public static int bellmanFord(int w[][], int V, int E, int edge[][])
     {
         int u, v, S, flag = 1;
         int distance[] = new int[20];
         int parent[] = new int[20];
 
-        for (int i = 1; i <= V; i++) 
+        for (int i = 0; i < V; i++)
         {
             distance[i] = 999;
             parent[i] = -1;
         }
 
-        System.out.println("Enter the source vertex");
+        System.out.println("Enter the source vertex (0 to " + (V - 1) + "):");
         S = in.nextInt();
         distance[S] = 0;
 
-        for (int i = 1; i <= V - 1; i++) 
+        for (int i = 0; i < V - 1; i++)
         {
-            for (int k = 1; k <= E; k++) 
+            for (int k = 0; k < E; k++)
             {
                 u = edge[k][0];
                 v = edge[k][1];
-                if (distance[u] + w[u][v] < distance[v]) 
+
+                if (distance[u] != 999 && distance[u] + w[u][v] < distance[v])
                 {
                     distance[v] = distance[u] + w[u][v];
                     parent[v] = u;
@@ -70,22 +72,23 @@ public class P7
             }
         }
 
-        for (int k = 1; k <= E; k++) 
+        for (int k = 0; k < E; k++)
         {
             u = edge[k][0];
             v = edge[k][1];
-            if (distance[u] + w[u][v] < distance[v]) 
+
+            if (distance[u] != 999 && distance[u] + w[u][v] < distance[v])
             {
                 flag = 0;
                 break;
             }
         }
 
-        if (flag == 1) 
+        if (flag == 1)
         {
-            for (int i = 1; i <= V; i++) 
+            for (int i = 0; i < V; i++)
             {
-                System.out.println("Vertex " + i + " -> Cost = " + distance[i] + ", Parent = " + parent[i]);
+                System.out.println("Vertex " + i + " → Cost = " + distance[i] + ", Parent = " + parent[i]);
             }
         }
 
