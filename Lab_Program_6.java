@@ -1,7 +1,7 @@
 package cn;
 import java.util.*;
 
-public class P7
+public class P6
 {
     static Scanner in = new Scanner(System.in);
 
